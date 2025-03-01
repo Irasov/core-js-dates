@@ -284,8 +284,32 @@ function getQuarter(date) {
  * { start: '01-01-2024', end: '15-01-2024' }, 1, 3 => ['01-01-2024', '05-01-2024', '09-01-2024', '13-01-2024']
  * { start: '01-01-2024', end: '10-01-2024' }, 1, 1 => ['01-01-2024', '03-01-2024', '05-01-2024', '07-01-2024', '09-01-2024']
  */
-function getWorkSchedule(/* period, countWorkDays, countOffDays */) {
-  throw new Error('Not implemented');
+function getWorkSchedule(period, countWorkDays, countOffDays) {
+  function trueDate(str) {
+    return new Date(str.slice(6), str.slice(3, 5), str.slice(0, 2));
+  }
+  const schedule = [];
+  const start = trueDate(period.start);
+  const end = trueDate(period.end);
+  start.setMonth(start.getMonth() - 1);
+  end.setMonth(end.getMonth() - 1);
+  const days = (end.getTime() - start.getTime()) / (1000 * 3600 * 24) + 1;
+  let worksDays = 0;
+  for (let i = 0; i < days; i += 1) {
+    if (start < end) {
+      if (worksDays < countWorkDays) {
+        schedule.push(
+          `${String(start.getDate()).padStart(2, '0')}-${String(start.getMonth() + 1).padStart(2, '0')}-${start.getFullYear()}`
+        );
+        worksDays += 1;
+        start.setDate(start.getDate() + 1);
+      } else {
+        worksDays = 0;
+        start.setDate(start.getDate() + countOffDays);
+      }
+    }
+  }
+  return schedule;
 }
 
 /**
